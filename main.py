@@ -1,13 +1,3 @@
-def input_data() -> 'list[int, list[int]]':
-    length_street = int(input())
-
-    street = input()
-    street = street.split(' ')
-    street = list(map(int, street))
-
-    return [length_street, street]
-
-
 # ID 52516422
 class NearestZero():
     '''Решение задачи Ближайший ноль.
@@ -20,33 +10,31 @@ class NearestZero():
     3. С последнего нуля идём в начало "улицы" беря
     min(текущая дистанция от предыдущего 0, result_distances[текущий индекс]).
     '''
-    def __init__(self, length_street, street, search_number=0):
+    def __init__(self, length_street, street, nearest_number=0) -> None:
         self.length_street = length_street
         self.street = street
-        self.search_number = search_number
-
-    def __run_the_street(self, result_distances, is_back=False):
-
-        empty_lot = -1
-        for i in range(self.length_street):
-
-            if is_back:
-                j = - (i + 1)
-            else:
-                j = i
-
-            if self.street[j] == self.search_number:
-                empty_lot = i
-
-            if empty_lot != -1:
-                result_distances[j] = min(result_distances[j], i - empty_lot)
-
-        return result_distances
+        self.nearest_number = nearest_number
 
     def get_result(self) -> 'list[int]':
-        result_distances = [float('inf') for q in range(self.length_street)]
-        result_distances = self.__run_the_street(result_distances)
-        return self.__run_the_street(result_distances, is_back=True)
+
+        def run_iterrator(iterrator) -> int:
+
+            distance, symbol_index = None, None
+            for i in iterrator:
+                if self.street[i] == 0:
+                    distance = 0
+                    symbol_index = i
+                result_distances[i] = min(result_distances[i], distance)
+                distance += 1
+            return symbol_index
+
+        result_distances = [float('inf')] * self.length_street
+        last_symbol_index = run_iterrator(
+            range(self.street.index(self.nearest_number), self.length_street)
+        )
+        run_iterrator(reversed(range(last_symbol_index + 1)))
+
+        return result_distances
 
     def __str__(self) -> str:
         result = self.get_result()
@@ -54,7 +42,12 @@ class NearestZero():
 
 
 def main():
-    length_street, street = input_data()
+    try:
+        length_street = int(input())
+        street = [int(house) for house in input().split()]
+    except ValueError as e:
+        print(f'Wrong input {e}')
+        return
 
     nearest_zero = NearestZero(length_street, street)
 
